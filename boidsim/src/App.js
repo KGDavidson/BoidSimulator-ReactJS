@@ -5,16 +5,22 @@ const canvasWidth = window.innerWidth;
 const canvasHeight = window.innerHeight;
 
 class Boid {
-    constructor(ctx, x, y, r) {
+    constructor(ctx, x, y, r, special) {
         this.ctx = ctx;
         this.x = x;
         this.y = y;
         this.r = r;
-        this.speed = 5;
+        this.speed = 7; // randomBetween(5, 8);
         this.checkPercent = 0.8;
         this.checkRadius = 50;
+        this.special = special
     }
     draw() {
+        if (this.special) {
+            this.ctx.fillStyle = "green";
+        } else {
+            this.ctx.fillStyle = "black";
+        }
         this.ctx.translate(this.x, this.y);
         this.ctx.rotate(this.r);
         this.ctx.beginPath();
@@ -49,7 +55,46 @@ class Boid {
             this.y -= canvasHeight;
         }
     }
-    separation(boid) {
+    drawSpecial(distance, boid) {
+        if (this.special && Math.abs(distance) < this.checkRadius * 4) {
+            this.ctx.beginPath();
+            this.ctx.moveTo(this.x, this.y);
+            this.ctx.lineTo(boid.x, boid.y);
+            this.ctx.stroke();
+            this.ctx.closePath();
+            console.log(this.speed);
+        }
+    }
+    separation(distance, boid) {
+        this.drawSpecial(distance, boid);
+
+        if (this !== boid && Math.abs(distance) < this.checkRadius) {
+            let vector1 = [Math.cos(this.r), Math.sin(this.r)];
+            let vector2 = [boid.x - this.x, boid.y - this.y];
+            let angle = toDegrees(Math.atan2(vector2[1], vector2[0]) - Math.atan2(vector1[1], vector1[0]));
+
+            if (angle > 180) {
+                angle -= 360
+            }
+
+            if (angle < -180) {
+                angle += 360
+            }
+
+            if (Math.abs(angle) < 180 * this.checkPercent){
+                this.r -= Math.abs(angle) / angle * toRadians(6);
+            }
+            
+        }
+    }
+    alignment(distance, boid) {
+        this.drawSpecial(distance, boid);
+        if (this !== boid && Math.abs(distance) < this.checkRadius) {
+            let angleDiff = boid.r - this.r;
+            let speedDiff = boid.speed - this.speed;
+            this.r += Math.abs(angleDiff) / angleDiff * toRadians(4);
+            //this.speed += Math.abs(speedDiff) / speedDiff * 0.1;
+        }
     }
 }
 
@@ -59,17 +104,24 @@ function randomBetween(min, max) {
     return min + Math.random() * (max - min)
 }
 
+function toRadians (angle) {
+    return angle * Math.PI / 180;
+}
+
+function toDegrees (angle) {
+    return angle / Math.PI * 180;
+}
+
+
 function initialiseBoids(ctx, n) {
     const boids = []
+    let special = true;
     for (var i = 0; i < n; i ++) {
-        boids.push(new Boid(ctx, randomBetween(100, canvasWidth - 100), randomBetween(100, canvasHeight - 100), toRadians(randomBetween(180, 0))));
+        boids.push(new Boid(ctx, randomBetween(100, canvasWidth - 100), randomBetween(100, canvasHeight - 100), toRadians(randomBetween(180, 0)), special));
+        special = false;
     }
     console.log(boids);
     return boids;
-}
-
-function toRadians (angle) {
-    return angle * (Math.PI / 180);
 }
 
 function App() {
@@ -78,7 +130,7 @@ function App() {
     useEffect(()=>{
         const canvas = canvasRef.current;
         const ctx = canvas.getContext("2d");
-        boids = initialiseBoids(ctx, 20);
+        boids = initialiseBoids(ctx, 100);
 
         const render = ()=>{
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -88,7 +140,9 @@ function App() {
                 boids[i].move();
                 boids[i].wallCheck();
                 for (var j = 0; j < boids.length; j++) {
-                    boids[i].separation(boids[j]);
+                    let distance = Math.sqrt(Math.pow(boids[i].x - boids[j].x, 2) + Math.pow(boids[i].y - boids[j].y, 2))
+                    boids[i].separation(distance, boids[j]);
+                    boids[i].alignment(distance, boids[j]);
                 }
             }
 
