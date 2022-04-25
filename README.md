@@ -12,5 +12,9 @@ A boid simulator written in ReactJS using the canvas element
 
 ## Authors
 
-K Davidson  
-[@KDavidson](mailto:kaushdavidson@icloud.com)
+[@K Davidson](mailto:kaushdavidson@icloud.com)
+
+## Acknowledgments
+
+-   [Coding Adventure: Boids - Sebastian Lague](https://www.youtube.com/watch?v=bqtqltqcQhw)
+-   [Boids - Wikipedia](https://en.wikipedia.org/wiki/Boids)
