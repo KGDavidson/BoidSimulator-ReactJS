@@ -1,6 +1,6 @@
 # BoidSimulator-ReactJS
 
-A boid simulator written in ReactJS using the canvas element
+A boid simulator written in ReactJS using the canvas element. A boid is highlighted for ease of tracking.
 
 ![UI](https://i.postimg.cc/JzBKSfV2/GIF-27-04-2022-03-43-53.gif)
 
@@ -14,6 +14,7 @@ A boid simulator written in ReactJS using the canvas element
     -   Alignment
 -   A boid is highlighted at random to make it easier to follow the movement of a singular boid
 -   The directions checked by the highlighted boid are shown with a white line
+-   Unique colour for each boid to add depth to the simulation
 
 ---
 
